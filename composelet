@@ -1,14 +1,15 @@
 upstream composelet_app{
- server 127.0.0.1:3000;
+ server 127.0.0.1:3080;
 # server www.composelet.com;
 }
 
 server {
 
     listen 80;
-    server_name composelet.com;
+    server_name dev.composelet.com;
 #    server_name 54.68.100.209;
-    access_log /var/log/nginx/composelet.access.log;
+    access_log /var/log/nginx/dev.composelet.access.log;
+    error_log /var/log/nginx/dev.composelet.error.log;
     location / {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_pass    http://composelet_app/;

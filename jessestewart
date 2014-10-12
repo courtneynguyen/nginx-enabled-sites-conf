@@ -1,0 +1,32 @@
+server {
+        listen          80;
+	server_name     local.jessestewart.com;
+
+        access_log      /var/log/nginx/local.jessestewart.com.access.log;
+        error_log       /var/log/nginx/local.jessestewart.com.error.log;
+	root		/home/cyen/Development/jesseStewart;
+        index           index.php;
+
+        location / { # on all requests, try for a real file. if it doesn't exist, forward onto out index.php for wordpress to rewrite or 404 nicely
+		index index.php
+                try_files $uri $uri/ /index.php?$args;
+        }
+
+        location ~ \.php$ { # any .php files should be forwarded onto php-fpm
+                try_files $uri =404; # by any we mean real php, not malicious ones renamed to another extension
+		include fastcgi_params;
+                fastcgi_intercept_errors on;
+                fastcgi_pass unix:/var/run/php5-fpm.sock;
+		fastcgi_index index.php;
+        }
+	
+#	location /phpmyadmin {
+#	root	/usr/share/phpmyadmin;
+#	index	index.php;
+#	}
+
+        location = /robots.txt { allow all; log_not_found off; access_log off; } # robots.txt is allowed but let's not log it
+        location = /favicon.ico { log_not_found off; access_log off; } # lets not log favicon requests, even if it is missing
+	location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ { expires max; log_not_found off; } # cache expires @ max
+        location ~ /\. { deny all; access_log off; log_not_found off; } # deny access to dot files
+}
